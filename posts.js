@@ -31,6 +31,12 @@ export function initializePostCreation() {
         post.userId = currentUser.id;
         post.username = currentUser.username;
         
+        // Initialize likes tracking
+        post.likes = post.likes || 0;
+        post.likedBy = post.likedBy || [];
+        post.dislikes = post.dislikes || 0;
+        post.dislikedBy = post.dislikedBy || [];
+        
         // If media is too large, truncate it
         if (post.media && post.media.length > 5000000) { // 5MB limit
             post.media = post.media.substring(0, 5000000);
@@ -143,15 +149,33 @@ export function initializePostCreation() {
                 const allPosts = loadPosts();
                 const postIndex = allPosts.findIndex(p => p.id === post.id);
                 if (postIndex !== -1) {
-                    allPosts[postIndex].likes = (allPosts[postIndex].likes || 0) + 1;
+                    const userPost = allPosts[postIndex];
                     
-                    // Update localStorage for the specific user's posts
-                    localStorage.setItem(`posts_${post.userId}`, JSON.stringify(
-                        JSON.parse(localStorage.getItem(`posts_${post.userId}`) || '[]')
-                            .map(p => p.id === post.id ? allPosts[postIndex] : p)
-                    ));
+                    // Check if user has already liked the post
+                    if (!userPost.likedBy || !userPost.likedBy.includes(currentUser.id)) {
+                        // Remove previous dislike if exists
+                        if (userPost.dislikedBy && userPost.dislikedBy.includes(currentUser.id)) {
+                            const dislikeIndex = userPost.dislikedBy.indexOf(currentUser.id);
+                            userPost.dislikedBy.splice(dislikeIndex, 1);
+                            userPost.dislikes = Math.max(0, userPost.dislikes - 1);
+                        }
 
-                    likeBtn.textContent = ` Gostei (${allPosts[postIndex].likes})`;
+                        // Add like
+                        userPost.likes = (userPost.likes || 0) + 1;
+                        userPost.likedBy = userPost.likedBy || [];
+                        userPost.likedBy.push(currentUser.id);
+                        
+                        // Update localStorage for the specific user's posts
+                        localStorage.setItem(`posts_${post.userId}`, JSON.stringify(
+                            JSON.parse(localStorage.getItem(`posts_${post.userId}`) || '[]')
+                                .map(p => p.id === post.id ? userPost : p)
+                        ));
+
+                        likeBtn.textContent = ` Gostei (${userPost.likes})`;
+                        dislikeBtn.textContent = ` Não Gostei (${userPost.dislikes || 0})`;
+                    } else {
+                        alert('Você já deu like nesta publicação.');
+                    }
                 }
             });
 
@@ -163,15 +187,33 @@ export function initializePostCreation() {
                 const allPosts = loadPosts();
                 const postIndex = allPosts.findIndex(p => p.id === post.id);
                 if (postIndex !== -1) {
-                    allPosts[postIndex].dislikes = (allPosts[postIndex].dislikes || 0) + 1;
+                    const userPost = allPosts[postIndex];
                     
-                    // Update localStorage for the specific user's posts
-                    localStorage.setItem(`posts_${post.userId}`, JSON.stringify(
-                        JSON.parse(localStorage.getItem(`posts_${post.userId}`) || '[]')
-                            .map(p => p.id === post.id ? allPosts[postIndex] : p)
-                    ));
+                    // Check if user has already disliked the post
+                    if (!userPost.dislikedBy || !userPost.dislikedBy.includes(currentUser.id)) {
+                        // Remove previous like if exists
+                        if (userPost.likedBy && userPost.likedBy.includes(currentUser.id)) {
+                            const likeIndex = userPost.likedBy.indexOf(currentUser.id);
+                            userPost.likedBy.splice(likeIndex, 1);
+                            userPost.likes = Math.max(0, userPost.likes - 1);
+                        }
 
-                    dislikeBtn.textContent = ` Não Gostei (${allPosts[postIndex].dislikes})`;
+                        // Add dislike
+                        userPost.dislikes = (userPost.dislikes || 0) + 1;
+                        userPost.dislikedBy = userPost.dislikedBy || [];
+                        userPost.dislikedBy.push(currentUser.id);
+                        
+                        // Update localStorage for the specific user's posts
+                        localStorage.setItem(`posts_${post.userId}`, JSON.stringify(
+                            JSON.parse(localStorage.getItem(`posts_${post.userId}`) || '[]')
+                                .map(p => p.id === post.id ? userPost : p)
+                        ));
+
+                        dislikeBtn.textContent = ` Não Gostei (${userPost.dislikes})`;
+                        likeBtn.textContent = ` Gostei (${userPost.likes || 0})`;
+                    } else {
+                        alert('Você já deu não gostei nesta publicação.');
+                    }
                 }
             });
 

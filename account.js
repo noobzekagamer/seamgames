@@ -165,38 +165,21 @@ function initializeStreamCreation() {
     const startStreamBtn = document.getElementById('startStreamBtn');
     const stopStreamBtn = document.getElementById('stopStreamBtn');
 
-    // Add cancel stream button
-    const cancelStreamBtn = document.createElement('button');
-    cancelStreamBtn.id = 'cancelStreamBtn';
-    cancelStreamBtn.textContent = 'Cancelar Stream';
-    cancelStreamBtn.classList.add('cancel-stream-btn');
-    cancelStreamBtn.style.display = 'none';
-    cancelStreamBtn.style.backgroundColor = 'red';
-    cancelStreamBtn.style.color = 'white';
-
-    // Insert cancel button next to other stream control buttons
-    const streamControlsContainer = document.querySelector('.stream-controls');
-    streamControlsContainer.appendChild(cancelStreamBtn);
-
-    // Enhanced stream key generation with authentication
+    // Function to generate a unique stream key
     function generateStreamKey() {
         const currentUser = JSON.parse(localStorage.getItem('currentUser'));
         if (!currentUser) return null;
 
-        // Include user ID for extra security
-        const randomPart = crypto.randomUUID().split('-')[0];
-        return `${currentUser.id}_${currentUser.username}_${randomPart}`;
+        // Generate a complex, hard-to-guess stream key
+        const key = `${currentUser.id}_${crypto.randomUUID()}_${Date.now()}`;
+        return btoa(key).replace(/=/g, ''); // Base64 encode and remove padding
     }
 
-    // Store and manage stream data with enhanced security
+    // Store and manage stream data
     function saveStreamData(streamData) {
         const currentUser = JSON.parse(localStorage.getItem('currentUser'));
         if (!currentUser) return;
 
-        // Add authentication token to stream data
-        streamData.userId = currentUser.id;
-        streamData.authenticatedBy = currentUser.username;
-        
         localStorage.setItem(`stream_${currentUser.id}`, JSON.stringify(streamData));
     }
 
@@ -208,132 +191,39 @@ function initializeStreamCreation() {
         return JSON.parse(localStorage.getItem(`stream_${currentUser.id}`));
     }
 
-    // Validate stream authentication before starting
-    function validateStreamAuthentication(streamKey) {
-        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-        if (!currentUser) return false;
-
-        // Split stream key to verify user authentication
-        const [userId, username] = streamKey.split('_');
-        
-        return (
-            userId === currentUser.id && 
-            username === currentUser.username
-        );
-    }
-
-    // Updated RTMP server validation
-    function validateRTMPServer(serverUrl) {
-        // Basic RTMP URL validation
-        const rtmpRegex = /^rtmp:\/\/[a-zA-Z0-9.-]+(?::\d+)?\/[a-zA-Z0-9_-]+$/;
-        
-        if (!rtmpRegex.test(serverUrl)) {
-            console.error('Invalid RTMP server URL format');
-            return false;
-        }
-
-        // Optional: Ping or validate server (would require backend support)
-        return true;
-    }
-
-    // Create new stream with enhanced error handling
+    // Create new stream
     createStreamBtn.addEventListener('click', () => {
-        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-        if (!currentUser) {
-            alert('Você precisa estar logado para criar uma stream.');
-            return;
-        }
-
-        const streamServer = serverInput.value.trim() || 'rtmp://localhost/live';
-        
-        // Validate RTMP server
-        if (!validateRTMPServer(streamServer)) {
-            alert('Formato de servidor RTMP inválido. Use o formato: rtmp://host/app');
-            return;
-        }
-
         const newStreamKey = generateStreamKey();
+        const streamServer = serverInput.value || 'rtmp://live.seamgames.com/live';
         
         const streamData = {
             key: newStreamKey,
             server: streamServer,
-            fullStreamUrl: `${streamServer}/${newStreamKey}`, 
             createdAt: new Date().toISOString(),
-            status: 'created',
-            authenticatedBy: currentUser.username
+            status: 'created'
         };
 
         saveStreamData(streamData);
 
-        // Update UI with detailed RTMP configuration
-        !streamKey && (streamKey.textContent = newStreamKey);
+        // Update UI
+        streamKey.textContent = newStreamKey;
         streamDetails.style.display = 'block';
         createStreamBtn.style.display = 'none';
         streamStatus.textContent = 'Preparando Stream';
         streamStatus.style.color = 'orange';
-
-        // Enhanced OBS Studio Setup Guide
-        const obsInstructions = document.createElement('div');
-        obsInstructions.innerHTML = `
-            <h4>Configuração para OBS Studio</h4>
-            <div class="rtmp-troubleshooting">
-                <h5>🔧 Solução de Problemas de Conexão RTMP</h5>
-                <p><strong>Dicas de Configuração:</strong></p>
-                <ol>
-                    <li>Verifique se o servidor RTMP está online e acessível</li>
-                    <li>Confirme que a porta está aberta (geralmente 1935)</li>
-                    <li>Desative firewalls temporariamente para teste</li>
-                    <li>Use um servidor RTMP público como teste:</li>
-                    <ul>
-                        <li>live.streamingservice.com/live</li>
-                        <li>rtmp.global.ssl.fastly.net/live</li>
-                    </ul>
-                </ol>
-                <p class="warning">⚠️ Se o problema persistir, entre em contato com o suporte.</p>
-            </div>
-            
-            <div class="obs-config">
-                <h5>Configurações do OBS:</h5>
-                <p><strong>Servidor:</strong> ${streamData.server}</p>
-                <p><strong>Chave de Transmissão:</strong> ${newStreamKey}</p>
-                <p><strong>Configuração Detalhada:</strong></p>
-                <pre>
-Configurações de Transmissão:
-- Serviço: Personalizado
-- Servidor: ${streamData.server}
-- Chave de Transmissão: ${newStreamKey}
-                </pre>
-            </div>
-        `;
-        streamDetails.appendChild(obsInstructions);
-
-        // Show cancel button when stream is being prepared
-        cancelStreamBtn.style.display = 'block';
     });
 
-    // Copy stream information for OBS
+    // Copy stream key
     copyStreamKeyBtn.addEventListener('click', () => {
-        const currentStreamData = getStreamData();
-        if (currentStreamData) {
-            const obsCopyText = `Servidor: ${currentStreamData.server}
-Chave: ${currentStreamData.key}`;
-            
-            navigator.clipboard.writeText(obsCopyText).then(() => {
-                alert('Informações de transmissão copiadas para OBS!');
-            });
-        }
+        navigator.clipboard.writeText(streamKey.textContent).then(() => {
+            alert('Chave de transmissão copiada!');
+        });
     });
 
-    // Start stream with authentication validation
+    // Start stream
     startStreamBtn.addEventListener('click', () => {
         const currentStreamData = getStreamData();
         if (currentStreamData) {
-            // Validate stream authentication
-            if (!validateStreamAuthentication(currentStreamData.key)) {
-                alert('Erro de autenticação. Apenas o criador pode iniciar a stream.');
-                return;
-            }
-
             currentStreamData.status = 'live';
             currentStreamData.startedAt = new Date().toISOString();
             saveStreamData(currentStreamData);
@@ -343,9 +233,6 @@ Chave: ${currentStreamData.key}`;
             streamStatus.style.color = 'red';
             startStreamBtn.style.display = 'none';
             stopStreamBtn.style.display = 'block';
-
-            // Hide cancel button when stream goes live
-            cancelStreamBtn.style.display = 'none';
         }
     });
 
@@ -363,39 +250,14 @@ Chave: ${currentStreamData.key}`;
             stopStreamBtn.style.display = 'none';
             createStreamBtn.style.display = 'block';
             streamDetails.style.display = 'none';
-
-            // Ensure cancel button is hidden
-            cancelStreamBtn.style.display = 'none';
-        }
-    });
-
-    // Cancel stream functionality
-    cancelStreamBtn.addEventListener('click', () => {
-        const currentStreamData = getStreamData();
-        if (currentStreamData) {
-            // Remove stream data
-            localStorage.removeItem(`stream_${currentStreamData.userId}`);
-
-            // Reset UI
-            streamStatus.textContent = 'Stream Cancelada';
-            streamStatus.style.color = 'gray';
-            
-            // Hide stream details and show create stream button
-            streamDetails.style.display = 'none';
-            createStreamBtn.style.display = 'block';
-            
-            // Hide control buttons
-            startStreamBtn.style.display = 'block';
-            stopStreamBtn.style.display = 'none';
-            cancelStreamBtn.style.display = 'none';
         }
     });
 
     // Load existing stream data on page load
     const existingStreamData = getStreamData();
     if (existingStreamData && existingStreamData.status !== 'ended') {
-        !streamKey && (streamKey.textContent = existingStreamData.key);
-        serverInput.value = existingStreamData.server || 'rtmp://localhost/live';
+        streamKey.textContent = existingStreamData.key;
+        serverInput.value = existingStreamData.server || 'rtmp://live.seamgames.com/live';
         streamDetails.style.display = 'block';
         createStreamBtn.style.display = 'none';
 
@@ -403,14 +265,12 @@ Chave: ${currentStreamData.key}`;
             case 'created':
                 streamStatus.textContent = 'Preparando Stream';
                 streamStatus.style.color = 'orange';
-                cancelStreamBtn.style.display = 'block';
                 break;
             case 'live':
                 streamStatus.textContent = 'Ao Vivo';
                 streamStatus.style.color = 'red';
                 startStreamBtn.style.display = 'none';
                 stopStreamBtn.style.display = 'block';
-                cancelStreamBtn.style.display = 'none';
                 break;
         }
     }

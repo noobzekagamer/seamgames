@@ -22,7 +22,7 @@
             <nav>
                 <a href="index.html" class="nav-link">Início</a>
                 <a href="account.html" class="nav-link">Minha Conta</a>
-                <button id="themeToggle"> Tema Escuro</button>
+                <button id="themeToggle">🌙 Tema Escuro</button>
                 <button id="loginBtn">Login</button>
                 <button id="registerBtn">Cadastrar</button>
             </nav>
@@ -69,19 +69,11 @@
                     <button id="createStreamBtn">Iniciar Nova Stream</button>
                     <div id="streamDetails" style="display:none;">
                         <h3>Detalhes da Stream</h3>
-                        <div class="stream-server-info">
-                            <label for="serverInput">Servidor de Transmissão:</label>
-                            <input type="text" id="serverInput" placeholder="rtmp://live.seamgames.com/live" value="rtmp://live.seamgames.com/live">
-                        </div>
-                        <div class="stream-key-section">
-                            <p>Chave de Transmissão: <span id="streamKey"></span></p>
-                            <div class="obs-compatibility-note">
-                                <small> Compatível com OBS Studio</small>
-                            </div>
-                        </div>
+                        <input type="text" id="serverInput" placeholder="Servidor de Transmissão" value="rtmp://live.seamgames.com/live">
+                        <p>Chave de Transmissão: <span id="streamKey"></span></p>
                         <p>Status: <span id="streamStatus">Inativa</span></p>
                         <div class="stream-controls">
-                            <button id="copyStreamKeyBtn">Copiar Info para OBS</button>
+                            <button id="copyStreamKeyBtn">Copiar Chave</button>
                             <button id="startStreamBtn">Começar Stream</button>
                             <button id="stopStreamBtn" style="display:none;">Parar Stream</button>
                         </div>
