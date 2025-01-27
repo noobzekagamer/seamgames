@@ -1,0 +1,35 @@
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - SeamGames</title>
+    <link rel="stylesheet" href="styles.css">
+    <script type="module" src="login.js" defer></script>
+</head>
+<body class="login-page">
+    <div id="loginContainer">
+        <div class="login-wrapper">
+            <h1>SeamGames</h1>
+            
+            <form id="mainLoginForm">
+                <input type="text" id="loginUsername" placeholder="Nome de Usuário" required>
+                <input type="password" id="loginPassword" placeholder="Senha" required>
+                <div class="login-actions">
+                    <button type="submit">Entrar</button>
+                    <button type="button" id="registerToggle">Cadastrar</button>
+                </div>
+            </form>
+
+            <form id="registerForm" style="display:none;">
+                <input type="text" id="registerUsername" placeholder="Nome de Usuário" required>
+                <input type="password" id="registerPassword" placeholder="Senha" required>
+                <input type="password" id="confirmPassword" placeholder="Confirmar Senha" required>
+                <div class="login-actions">
+                    <button type="submit">Cadastrar</button>
+                    <button type="button" id="loginToggle">Já tenho conta</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

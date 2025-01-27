@@ -1,0 +1,120 @@
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minha Conta - SeamGames</title>
+    <link rel="stylesheet" href="styles.css">
+    <script type="module" src="account.js" defer></script>
+    <script type="module">
+        // Add this script to the head of account.html to check login status
+        document.addEventListener('DOMContentLoaded', () => {
+            const currentUser = localStorage.getItem('currentUser');
+            if (!currentUser) {
+                window.location.href = 'index.html';
+            }
+        });
+    </script>
+</head>
+<body>
+    <div id="app">
+        <header>
+            <h1>SeamGames</h1>
+            <nav>
+                <a href="index.html" class="nav-link">Início</a>
+                <a href="account.html" class="nav-link">Minha Conta</a>
+                <button id="themeToggle"> Tema Escuro</button>
+                <button id="loginBtn">Login</button>
+                <button id="registerBtn">Cadastrar</button>
+            </nav>
+        </header>
+
+        <main id="accountContent">
+            <section id="profileSection">
+                <h2>Meu Perfil</h2>
+                <div id="profileInfo">
+                    <div class="profile-avatar">
+                        <img src="" alt="Foto de Perfil" id="profileAvatar">
+                        <input type="file" id="avatarUpload" accept="image/*" style="display:none;">
+                    </div>
+                    <div class="profile-details">
+                        <input type="text" id="profileName" placeholder="Nome" disabled>
+                        <textarea id="profileDescription" placeholder="Descrição do perfil" disabled></textarea>
+                        <button id="editProfileBtn">Editar Perfil</button>
+                        <button id="saveProfileBtn" style="display:none;">Salvar Alterações</button>
+                    </div>
+                </div>
+            </section>
+
+            <section id="myPosts">
+                <h2>Minhas Publicações</h2>
+                <div id="postCreation">
+                    <h3>Criar Nova Publicação</h3>
+                    <form id="postForm">
+                        <textarea placeholder="Escreva algo..." id="postText"></textarea>
+                        <div class="upload-controls">
+                            <input type="file" id="mediaUpload" accept="video/*">
+                            <button type="submit">Publicar</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div id="myPostsContainer">
+                    <!-- Minhas publicações serão renderizadas aqui -->
+                </div>
+            </section>
+
+            <section id="streamSection">
+                <h2>Criar Stream</h2>
+                <div id="streamCreation">
+                    <button id="createStreamBtn">Iniciar Nova Stream</button>
+                    <div id="streamDetails" style="display:none;">
+                        <h3>Detalhes da Stream</h3>
+                        <div class="stream-server-info">
+                            <label for="serverInput">Servidor de Transmissão:</label>
+                            <input type="text" id="serverInput" placeholder="rtmp://live.seamgames.com/live" value="rtmp://live.seamgames.com/live">
+                        </div>
+                        <div class="stream-key-section">
+                            <p>Chave de Transmissão: <span id="streamKey"></span></p>
+                            <div class="obs-compatibility-note">
+                                <small> Compatível com OBS Studio</small>
+                            </div>
+                        </div>
+                        <p>Status: <span id="streamStatus">Inativa</span></p>
+                        <div class="stream-controls">
+                            <button id="copyStreamKeyBtn">Copiar Info para OBS</button>
+                            <button id="startStreamBtn">Começar Stream</button>
+                            <button id="stopStreamBtn" style="display:none;">Parar Stream</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Updated login and register modals -->
+        <div id="loginModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2>Login</h2>
+                <form id="loginForm">
+                    <input type="text" placeholder="Nome de Usuário" required>
+                    <input type="password" placeholder="Senha" required>
+                    <button type="submit">Entrar</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="registerModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2>Cadastro</h2>
+                <form id="registerForm">
+                    <input type="text" placeholder="Nome de Usuário" required>
+                    <input type="password" placeholder="Senha" required>
+                    <input type="password" placeholder="Confirmar Senha" required>
+                    <button type="submit">Cadastrar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

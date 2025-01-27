@@ -1,0 +1,75 @@
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SeamGames</title>
+    <link rel="stylesheet" href="styles.css">
+    <script type="module" src="app.js" defer></script>
+    <script type="module">
+        // Check login status on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            const currentUser = localStorage.getItem('currentUser');
+            if (!currentUser) {
+                window.location.href = 'login.html';
+            }
+        });
+    </script>
+</head>
+<body>
+    <div id="app">
+        <header>
+            <h1>SeamGames</h1>
+            <nav>
+                <a href="index.html" class="nav-link">Início</a>
+                <a href="account.html" class="nav-link">Minha Conta</a>
+                <button id="themeToggle">🌙 Tema Escuro</button>
+                <button id="loginBtn">Login</button>
+                <button id="registerBtn">Cadastrar</button>
+            </nav>
+        </header>
+
+        <main>
+            <section id="postCreation">
+                <h3>Criar Nova Publicação</h3>
+                <form id="postForm">
+                    <textarea placeholder="Escreva algo..." id="postText"></textarea>
+                    <div class="upload-controls">
+                        <input type="file" id="mediaUpload" accept="video/*">
+                        <button type="submit">Publicar</button>
+                    </div>
+                </form>
+            </section>
+
+            <section id="feedContainer">
+                <!-- Recent posts will be dynamically added here -->
+            </section>
+        </main>
+
+        <!-- Login and Register Modals -->
+        <div id="loginModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2>Login</h2>
+                <form id="loginForm">
+                    <input type="text" placeholder="Nome de Usuário" required>
+                    <input type="password" placeholder="Senha" required>
+                    <button type="submit">Entrar</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="registerModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2>Cadastro</h2>
+                <form id="registerForm">
+                    <input type="text" placeholder="Nome de Usuário" required>
+                    <input type="password" placeholder="Senha" required>
+                    <input type="password" placeholder="Confirmar Senha" required>
+                    <button type="submit">Cadastrar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
